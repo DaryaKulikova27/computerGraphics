@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            .letter_color_blue {
+                fill: #31859b;
+            }
+
+            .letter_color_pink {
+                fill: #FFB6C1;
+            }
+
+            .letter_color_yellow {
+                fill: #FFD700;
+            }
+
+            @keyframes colorize-d {
+                0% { fill: red; }
+                50% { fill: yellow; }
+                100% { fill: blue; }
+            }
+
+            @keyframes colorize-a {
+                0% { fill: #DC143C; }
+                50% { fill: #FF69B4; }
+                100% { fill: #800080; }
+            }
+
+            @keyframes colorize-k {
+                0% { fill: #FFFF00; }
+                50% { fill: #FFEFD5; }
+                100% { fill: #BDB76B; }
+            }
+
+            @keyframes jump {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+            }
+
+            #letter-d {
+                animation-name: colorize-d, jump;
+                animation-duration: 4s, 1s;
+                animation-iteration-count: infinite;
+                animation-direction: alternate-reverse;
+                animation-delay: 0s, 0.5s;
+            }
+
+            #letter-a {
+                animation-name: colorize-a, jump;
+                animation-duration: 6s, 1s;
+                animation-iteration-count: infinite;
+                animation-direction: alternate-reverse;
+                animation-delay: 0s, 0.75s;
+            }
+
+            #letter-k {
+                animation-name: colorize-k, jump;
+                animation-duration: 8s, 1s;
+                animation-iteration-count: infinite;
+                animation-direction: alternate-reverse;
+                animation-delay: 0s, 1s;
+            }
+        </style>
+    </head>
+    <body>
+        <svg id="letter-d" width="135px" height="150px" xmlns="http://www.w3.org/2000/svg" class="letter_color_blue">
+            <rect x="15" y="0" width="25" height="100"/>
+            <rect x="95" y="0" width="25" height="100"/>
+            <rect x="15" y="0" width="105" height="25"/>
+            <rect x="0" y="100" width="135" height="25"/>
+            <rect x="0" y="125" width="25" height="25"/>
+            <rect x="110" y="125" width="25" height="25"/>
+        </svg>
+
+        <svg id="letter-a" width="135px" height="150px"  viewBox="0 0 215 266" xmlns="http://www.w3.org/2000/svg" class="letter_color_pink">
+            <rect x="93.1075" y="0.840149" width="31" height="270" transform="rotate(20 93.1075 0.840149)"/>
+            <rect x="59" y="148" width="31" height="95" transform="rotate(-90 59 148)"/>
+            <rect width="31" height="270" transform="matrix(-0.939693 0.34202 0.34202 0.939693 122.13 1)"/>
+        </svg>
+
+        <svg id="letter-k" width="135px" height="150px" viewBox="0 0 176 283" xmlns="http://www.w3.org/2000/svg" class="letter_color_yellow">
+            <rect y="3" width="31" height="279"/>
+            <rect x="136.589" y="0.495178" width="31" height="197.309" transform="rotate(42.881 136.589 0.495178)"/>
+            <rect width="31" height="197.309" transform="matrix(0.845718 -0.533631 -0.533631 -0.845718 149.29 282.41)"/>
+        </svg>            
+    </body>
+</html>
