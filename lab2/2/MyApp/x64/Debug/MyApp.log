@@ -1,0 +1,9 @@
+﻿  MainFrm.cpp
+C:\Users\User\source\dashasWorks\graphics\lab2\2\MyApp\MainFrm.cpp(114,46): warning C4244: =: преобразование "float" в "LONG", возможна потеря данных
+C:\Users\User\source\dashasWorks\graphics\lab2\2\MyApp\MainFrm.cpp(115,45): warning C4244: =: преобразование "float" в "LONG", возможна потеря данных
+C:\Users\User\source\dashasWorks\graphics\lab2\2\MyApp\MainFrm.cpp(117,31): warning C4244: =: преобразование "float" в "LONG", возможна потеря данных
+C:\Users\User\source\dashasWorks\graphics\lab2\2\MyApp\MainFrm.cpp(118,31): warning C4244: =: преобразование "float" в "LONG", возможна потеря данных
+C:\Users\User\source\dashasWorks\graphics\lab2\2\MyApp\MainFrm.cpp(236,26): warning C4244: =: преобразование "float" в "LONG", возможна потеря данных
+C:\Users\User\source\dashasWorks\graphics\lab2\2\MyApp\MainFrm.cpp(237,21): warning C4244: *=: преобразование "float" в "LONG", возможна потеря данных
+C:\Users\User\source\dashasWorks\graphics\lab2\2\MyApp\MainFrm.cpp(120): warning C4172: возвращение адреса локальной или временной переменной : fitRect
+  MyApp.vcxproj -> C:\Users\User\source\dashasWorks\graphics\lab2\2\x64\Debug\MyApp.exe
