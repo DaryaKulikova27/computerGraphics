@@ -19,3 +19,7 @@ std::map<int, Element>* CGameBrain::GetAllElements() {
 Element* CGameBrain::GetElementById(int id) {
     return &m_elements[id];
 }
+
+Element CGameBrain::GetCopyElementById(int id) {
+    return m_elements[id];
+}

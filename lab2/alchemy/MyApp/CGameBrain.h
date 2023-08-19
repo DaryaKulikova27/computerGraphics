@@ -8,17 +8,18 @@
 class CGameBrain
 {
 public:
-	CGameBrain() { 
-		InitGameElements(); 
+	CGameBrain() {
+		InitGameElements();
 	};
 	std::vector<int>* GetOpenedElements();
 	std::map<int, Element>* GetAllElements();
 	Element* GetElementById(int id);
+	Element GetCopyElementById(int id);
 
 private:
 	void InitGameElements();
 	std::map<int, Element> m_elements;
-	std::vector<int> m_openedElements{19, 8, 4, 0};
+	std::vector<int> m_openedElements{ 19, 8, 4, 0 };
 	const int numberOfElements = 20;
 	std::map<std::string, std::wstring> elementsResources = {
 		{"water", L"./images/water.jpg"},
@@ -41,6 +42,22 @@ private:
 		{"life", L"./images/life.jpg"},
 		{"bacteria", L"./images/bacteria.jpg"},
 		{"alcohol", L"./images/alcohol.png"}
+	};
+	std::vector<std::vector<int>> m_combinations = {
+		{8, 4, 11},
+		{0, 4, 3},
+		{8, 3, 9},
+		{9, 8, 7, 16},
+		{0, 8, 6},
+		{11, 19, 15},
+		{0, 6, 17}, 
+		{8, 15, 13}, 
+		{13, 6, 5}, 
+		{5, 19, 10, 14}, 
+		{19, 4, 18}, 
+		{8, 19, 1}, 
+		{18, 6, 12}, 
+		{12, 18, 2}
 	};
 };
 

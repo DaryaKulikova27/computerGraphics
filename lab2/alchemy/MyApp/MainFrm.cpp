@@ -12,6 +12,7 @@ CMainFrame::CMainFrame()
 	m_pen(Gdiplus::Color(13, 37, 117), 10),
 	m_pen2(Gdiplus::Color(13, 37, 117), 2)
 {
+	closeIcon = std::make_unique<Gdiplus::Image>(L"./images/close.png");
 	std::map<int, Element>::iterator it;
 	for (it = gameBrain.GetAllElements()->begin(); it != gameBrain.GetAllElements()->end(); ++it) {
 		std::unique_ptr<Gdiplus::Image> img = std::make_unique<Gdiplus::Image>(it->second.GetFileName().c_str());
@@ -143,6 +144,14 @@ void CMainFrame::DrawOpenedCards() {
 	}
 }
 
+void CMainFrame::DrawExperimentedElements() {
+	Graphics g(m_pBackBuffer.get());
+
+	for (int i = 0; i < experimentedElements.size(); i++) {
+		g.DrawImage(elementImages[experimentedElements[i].first].get(), experimentedElements[i].second);
+	}
+}
+
 
 void CMainFrame::RedrawBackBuffer(void)
 {
@@ -170,6 +179,12 @@ void CMainFrame::RedrawBackBuffer(void)
 	Rect borderForCards = Rect(rcWindow.TopLeft().x + 30, rcWindow.TopLeft().y + 60, (rcWindow.Width() / 2) - 60, rcWindow.Height() - 120);
 	//g.DrawRectangle(&m_pen2, borderForCards);
 
+	m_borderForExperimentingField = Rect(rcWindow.Width() / 2 + 30, rcWindow.TopLeft().y + 60, (rcWindow.Width() / 2) - 60, rcWindow.Height() - 120);
+	g.DrawRectangle(&m_pen2, m_borderForExperimentingField);
+
+	m_closePosition = Rect(rcWindow.Width() / 2 + rcWindow.Width() / 4, m_borderForExperimentingField.GetBottom() - 60, 50, 50);
+	g.DrawImage(closeIcon.get(), m_closePosition);
+
 	SolidBrush brush2(Color(204, 229, 255));
 	int cardSpaceWidth = (borderForCards.Width - 5 * CARD_WIDTH) / 4;
 	int cardSpaceHeight = (borderForCards.Height - 4 * CARD_HEIGTH) / 3;
@@ -186,58 +201,90 @@ void CMainFrame::RedrawBackBuffer(void)
 	}
 
 	DrawOpenedCards();
+	DrawExperimentedElements();
 }
 
 
-LRESULT CMainFrame::OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
-{
-	if (m_isDrawing)
-	{
-		int x = GET_X_LPARAM(lParam);
-		int y = GET_Y_LPARAM(lParam);
-
-		/*
-		CPoint relativePointStart = GetRelativePoint(CPoint(m_lastPoint.X, m_lastPoint.Y));
-		CPoint relativePointEnd = GetRelativePoint(CPoint(x, y));
-
-		Graphics graphics(m_pLoadedImage.get());
-		graphics.DrawLine(&m_pen, (int) relativePointStart.x, (int) relativePointStart.y, (int) relativePointEnd.x, (int) relativePointEnd.y);
-
-		m_lastPoint = Point(x, y);
-		InvalidateRect(NULL, TRUE); */
-	}
-
-	return 0;
-}
-
-int CMainFrame::GetClickedElementId(Point lastPoint) {
+bool CMainFrame::IsClickedOriginalElement(Point lastPoint) {
+	int id;
+	Rect copyCardPos;
 	for (int i = 0; i < gameBrain.GetOpenedElements()->size(); i++) {
 		Rect cardPos = cardPositions[i];
 		if (((cardPos.X <= lastPoint.X) && (lastPoint.X <= cardPos.X + cardPos.Width)) && ((cardPos.Y <= lastPoint.Y) && (lastPoint.Y <= cardPos.Y + cardPos.Height))) {
-			return gameBrain.GetOpenedElements()->at(i);
+			id =  gameBrain.GetOpenedElements()->at(i);
+			if (GetIndexInExperimentedElements(id) == -1) {
+				copyCardPos = Rect(m_borderForExperimentingField.X, m_borderForExperimentingField.Y, CARD_WIDTH, CARD_HEIGTH);
+				experimentedElements.push_back(make_pair(id, copyCardPos));
+				m_originalElementWasClicked = true; 
+				return true;
+			}
+			return false;
+		}
+	}
+	return false;
+}
+
+int CMainFrame::GetIndexInExperimentedElements(int id) {
+	for (int i = 0; i < experimentedElements.size(); i++) {
+		if (experimentedElements[i].first == id) {
+			return i;
 		}
 	}
 	return -1;
 }
 
-void CMainFrame::DrawCopyElementImage(int elementId) {
-	Graphics g(m_pBackBuffer.get());
+bool CMainFrame::IsClickedCopyElement(Point lastPoint) {
+	for (int i = 0; i < experimentedElements.size(); i++) {
+		Rect elementPos = experimentedElements[i].second;
+		if (((elementPos.X <= lastPoint.X) && (lastPoint.X <= elementPos.X + elementPos.Width)) && ((elementPos.Y <= lastPoint.Y) && (lastPoint.Y <= elementPos.Y + elementPos.Height))) {
+			m_selectedElement = make_pair(experimentedElements[i].first, experimentedElements[i].second);
+			m_moving = true;
+			return true;
+		}
+	}
+	return false;
 }
 
-LRESULT CMainFrame::OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+void CMainFrame::MoveCopyElement(Point lastPoint) {
+	Point pastCenter = Point(m_selectedElement.second.X + CARD_WIDTH / 2, m_selectedElement.second.Y + CARD_HEIGTH / 2);
+	Point offset = lastPoint - pastCenter;
+	Rect newPosition = Rect(m_selectedElement.second.X + offset.X, m_selectedElement.second.Y + offset.Y, CARD_WIDTH, CARD_HEIGTH);
+	if (((newPosition.X + CARD_WIDTH / 2) >= (m_closePosition.X + 10)) && ((newPosition.X + CARD_WIDTH / 2) <= (m_closePosition.X + 40))
+		&& ((newPosition.Y + CARD_HEIGTH / 2) >= (m_closePosition.Y + 10)) && ((newPosition.Y + CARD_HEIGTH / 2) <= (m_closePosition.Y + 40))) {
+		experimentedElements.erase(experimentedElements.begin() + GetIndexInExperimentedElements(m_selectedElement.first));
+		m_moving = false;
+	}
+	else {
+		experimentedElements.erase(experimentedElements.begin() + GetIndexInExperimentedElements(m_selectedElement.first));
+		experimentedElements.push_back(make_pair(m_selectedElement.first, newPosition));
+	}
+	InvalidateRect(NULL, TRUE);
+}
+
+LRESULT CMainFrame::OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
-	m_isDrawing = true;
-	m_lastPoint = Point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-	int clickedElementId = GetClickedElementId(m_lastPoint);
-	if (clickedElementId != -1) {
-		// нажали на открытый элемент, надо создать копию картинки
+	if (m_moving)
+	{
+		int x = GET_X_LPARAM(lParam);
+		int y = GET_Y_LPARAM(lParam);
+		MoveCopyElement(Point(x, y));
 	}
 
 	return 0;
 }
 
+LRESULT CMainFrame::OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+{
+	m_lastPoint = Point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+	if (IsClickedOriginalElement(m_lastPoint) || IsClickedCopyElement(m_lastPoint)) {
+		InvalidateRect(NULL, TRUE);
+	} 
+	
+	return 0;
+}
+
 LRESULT CMainFrame::OnLButtonUp(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
-	m_isDrawing = false;
+	m_moving = false;
 	return 0;
 }

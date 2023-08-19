@@ -48,22 +48,31 @@ private:
 
 	void RedrawBackBuffer(void);
 	void DrawOpenedCards();
-	int GetClickedElementId(Point lastPoint);
-	void DrawCopyElementImage(int elementId);
+	void DrawExperimentedElements();
+	bool IsClickedOriginalElement(Point lastPoint);
+	bool IsClickedCopyElement(Point lastPoint);
+	void MoveCopyElement(Point lastPoint);
+	int GetIndexInExperimentedElements(int id);
 
 	std::auto_ptr<Gdiplus::Bitmap> m_pBackBuffer; // то, на чем будет рисоваться
 	std::auto_ptr<Gdiplus::Bitmap> m_pLoadedImage; // картинка
 
 	std::wstring m_fileName;
-	bool m_isDrawing{ false }; // переменная, отвечающая за то, нажата ли левая мышь
+	bool m_moving{ false };
+	bool m_originalElementWasClicked{ false };
 	Gdiplus::Point m_lastPoint{ 0, 0 };
 	Gdiplus::Pen m_pen;
 	Gdiplus::Pen m_pen2;
 	Gdiplus::Font m_font;
 	const int CARD_WIDTH = 80;
 	const int CARD_HEIGTH = 80;
+	Rect m_borderForExperimentingField;
+	Rect m_closePosition;
 	std::vector<Rect> cardPositions;
 	std::map<int, std::unique_ptr<Gdiplus::Image>> elementImages;
+	std::unique_ptr<Gdiplus::Image> closeIcon;
+	std::vector<std::pair<int, Rect>> experimentedElements;
+	std::pair<int, Rect> m_selectedElement;
 	
 	CGameBrain gameBrain = CGameBrain();
 };
