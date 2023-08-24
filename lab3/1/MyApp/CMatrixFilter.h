@@ -57,7 +57,9 @@ protected:
 	// обработку цвета пикселя после применения к нему матричного фильтра
 	virtual void AdjustColor(
 		float& r, float& g, float& b, float& a,
-		Gdiplus::Color const& srcColor)const;
+		Gdiplus::Color const& srcColor) const;
+
+
 private:
 	// приводим цвет к диапазону от 0 до 255
 	inline static BYTE Clamp(float color)

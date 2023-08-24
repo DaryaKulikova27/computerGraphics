@@ -53,9 +53,9 @@ private:
 	bool IsClickedCopyElement(Point lastPoint);
 	void MoveCopyElement(Point lastPoint);
 	int GetIndexInExperimentedElements(int id);
+	int GetIntersectedElement(Point lastPoint);
 
-	std::auto_ptr<Gdiplus::Bitmap> m_pBackBuffer; // то, на чем будет рисоваться
-	std::auto_ptr<Gdiplus::Bitmap> m_pLoadedImage; // картинка
+	std::unique_ptr<Gdiplus::Bitmap> m_pBackBuffer;
 
 	std::wstring m_fileName;
 	bool m_moving{ false };
@@ -63,7 +63,8 @@ private:
 	Gdiplus::Point m_lastPoint{ 0, 0 };
 	Gdiplus::Pen m_pen;
 	Gdiplus::Pen m_pen2;
-	Gdiplus::Font m_font;
+	Gdiplus::Font m_font1;
+	Gdiplus::Font m_font2;
 	const int CARD_WIDTH = 80;
 	const int CARD_HEIGTH = 80;
 	Rect m_borderForExperimentingField;

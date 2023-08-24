@@ -15,6 +15,8 @@ public:
 	std::map<int, Element>* GetAllElements();
 	Element* GetElementById(int id);
 	Element GetCopyElementById(int id);
+	std::vector<int> GetNewElement(int id1, int id2);
+	void AddNewOpenElement(std::vector<int> idElements);
 
 private:
 	void InitGameElements();

@@ -19,16 +19,16 @@ public:
 	int GetId();
 	std::string GetName();
 	std::wstring GetFileName();
-	std::auto_ptr<Gdiplus::Bitmap> GetElementBitmap();
+	std::unique_ptr<Gdiplus::Bitmap> GetElementBitmap();
 	void SetId(int id);
 	void SetName(std::string name);
 	void SetFileName(std::wstring fileName);
-	void SetElementBitmap(std::auto_ptr<Gdiplus::Bitmap> bitmap);
+	void SetElementBitmap(std::unique_ptr<Gdiplus::Bitmap> bitmap);
 	
 private:
 	int m_id = 0;
 	std::string m_name = "emptyName";
 	std::wstring m_fileName = L"emptyFileName";
-	std::auto_ptr<Gdiplus::Bitmap> m_elementBitmap;
+	std::unique_ptr<Gdiplus::Bitmap> m_elementBitmap;
 };
 

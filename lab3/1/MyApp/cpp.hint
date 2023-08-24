@@ -1,0 +1,4 @@
+// Файлы указаний помогают среде IDE Visual Studio интерпретировать идентификаторы Visual C++
+// (например, имена функций и макросов).
+// Дополнительные сведения: https://go.microsoft.com/fwlink/?linkid=865984
+#define DECLARE_FRAME_WND_CLASS(WndClassName, uCommonResourceID) static WTL::CFrameWndClassInfo& GetWndClassInfo() { static WTL::CFrameWndClassInfo wc = { { sizeof(WNDCLASSEX), 0, StartWindowProc, 0, 0, NULL, NULL, NULL, (HBRUSH)(COLOR_WINDOW + 1), NULL, WndClassName, NULL }, NULL, NULL, IDC_ARROW, TRUE, 0, _T(""), uCommonResourceID }; return wc; }

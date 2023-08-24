@@ -42,19 +42,14 @@ void CMatrixFilter::InitializeMatrix(
 		{
 			// умножаем все элементы матрицы на масштабный множитель
 			std::transform(
-				m_matrix.begin(), // начина€ с первого элемента матрицы
-				m_matrix.end(),   // до последнего
-				m_matrix.begin(), // результат помещаем в саму матрицу
+				m_matrix.begin(), 
+				m_matrix.end(), 
+				m_matrix.begin(), 
 				std::bind1st(
 					std::multiplies<float>(),
-					scale) // bind1st создает унарную функцию из
-				// бинарной функции std::multiplies
-				// созданна€ функци€ умножает значение 
-				// элемента матрицы на scale
+					scale)
 			);
 		}
-
-
 	}
 	else
 	{
@@ -62,8 +57,34 @@ void CMatrixFilter::InitializeMatrix(
 	}
 }
 
+void CMatrixFilter::SetMatrixValue(size_t row, size_t column, float value)
+{
+	if ((row < m_matrixHeight) && (column < m_matrixWidth))
+	{
+		m_matrix[row * m_matrixWidth + column] = value;
+	}
+	else
+	{
+		throw std::invalid_argument("Row or Column index is out of range");
+	}
+}
+
+
+float CMatrixFilter::GetMatrixValue(size_t row, size_t column) const
+{
+	if ((row < m_matrixHeight) && (column < m_matrixWidth))
+	{
+		return m_matrix[row * m_matrixWidth + column];
+	}
+	else
+	{
+		throw std::invalid_argument("Row or Column index is out of range");
+	}
+}
+
+
 Gdiplus::PixelFormat CMatrixFilter::ChoosePreferableOutputPixelFormat(
-	Gdiplus::Bitmap& bitmapData)const
+	Gdiplus::Bitmap& bitmapData) const
 {
 	return bitmapData.GetPixelFormat();
 }
@@ -146,7 +167,7 @@ std::auto_ptr<Gdiplus::Bitmap> CMatrixFilter::ApplyFilter(
 
 void CMatrixFilter::AdjustColor(
 	float& /*r*/, float& /*g*/, float& /*b*/, float& /*a*/,
-	Gdiplus::Color const& /*srcColor*/)const
+	Gdiplus::Color const& /*srcColor*/) const
 {
 	// оставл€ем без изменени€ r, g, b и a составл€ющие цвета
 	// этот метод может быть перегружен в производном классе

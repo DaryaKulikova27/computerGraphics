@@ -12,8 +12,8 @@ std::wstring Element::GetFileName() {
 	return m_fileName;
 }
 
-std::auto_ptr<Gdiplus::Bitmap> Element::GetElementBitmap() {
-	return m_elementBitmap;
+std::unique_ptr<Gdiplus::Bitmap> Element::GetElementBitmap() {
+	return std::move(m_elementBitmap);
 }
 
 void Element::SetId(int id) {
@@ -28,6 +28,6 @@ void Element::SetFileName(std::wstring fileName) {
 	m_fileName = fileName;
 }
 
-void Element::SetElementBitmap(std::auto_ptr<Gdiplus::Bitmap> bitmap) {
-	m_elementBitmap = bitmap;
+void Element::SetElementBitmap(std::unique_ptr<Gdiplus::Bitmap> bitmap) {
+	m_elementBitmap = std::move(bitmap);
 }

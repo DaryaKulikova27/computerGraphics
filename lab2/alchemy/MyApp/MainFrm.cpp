@@ -8,7 +8,8 @@ using namespace std;
 using namespace Gdiplus;
 
 CMainFrame::CMainFrame()
-	:m_font(L"Courier New", 25, FontStyleBoldItalic),
+	:m_font1(L"Courier New", 25, FontStyleBoldItalic),
+	m_font2(L"Courier New", 10, FontStyleItalic),
 	m_pen(Gdiplus::Color(13, 37, 117), 10),
 	m_pen2(Gdiplus::Color(13, 37, 117), 2)
 {
@@ -167,8 +168,8 @@ void CMainFrame::RedrawBackBuffer(void)
 	// устанавливаем режим устранения ступенчатости при рисовании текста
 	g.SetTextRenderingHint(TextRenderingHintAntiAlias);
 	SolidBrush brush(Color(13, 37, 117));
-	g.DrawString(L"Открытые элементы", -1, &m_font, PointF((rcWindow.Width() / 2) * 0.2, 10), &brush);
-	g.DrawString(L"Поле для экспериментов", -1, &m_font, PointF(rcWindow.Width() / 2 + (rcWindow.Width() / 2) * 0.2, 10), &brush);
+	g.DrawString(L"Открытые элементы", -1, &m_font1, PointF((rcWindow.Width() / 2) * 0.2, 10), &brush);
+	g.DrawString(L"Поле для экспериментов", -1, &m_font1, PointF(rcWindow.Width() / 2 + (rcWindow.Width() / 2) * 0.2, 10), &brush);
 
 	// перегородка посередине
 	Point myStartPoint = Point(rcWindow.Width() / 2, 0);
@@ -245,14 +246,45 @@ bool CMainFrame::IsClickedCopyElement(Point lastPoint) {
 	return false;
 }
 
+int CMainFrame::GetIntersectedElement(Point lastPoint) {
+	for (int i = 0; i < experimentedElements.size(); i++) {
+		if (((lastPoint.X) >= (experimentedElements[i].second.X + 10)) && ((lastPoint.X) <= (experimentedElements[i].second.X + 70))
+			&& ((lastPoint.Y) >= (experimentedElements[i].second.Y + 10)) && ((lastPoint.Y) <= (experimentedElements[i].second.Y + 70))) {
+			return experimentedElements[i].first;
+		}
+	}
+	return -1;
+}
+
 void CMainFrame::MoveCopyElement(Point lastPoint) {
 	Point pastCenter = Point(m_selectedElement.second.X + CARD_WIDTH / 2, m_selectedElement.second.Y + CARD_HEIGTH / 2);
 	Point offset = lastPoint - pastCenter;
 	Rect newPosition = Rect(m_selectedElement.second.X + offset.X, m_selectedElement.second.Y + offset.Y, CARD_WIDTH, CARD_HEIGTH);
+	int secondElementId = GetIntersectedElement(lastPoint);
 	if (((newPosition.X + CARD_WIDTH / 2) >= (m_closePosition.X + 10)) && ((newPosition.X + CARD_WIDTH / 2) <= (m_closePosition.X + 40))
 		&& ((newPosition.Y + CARD_HEIGTH / 2) >= (m_closePosition.Y + 10)) && ((newPosition.Y + CARD_HEIGTH / 2) <= (m_closePosition.Y + 40))) {
 		experimentedElements.erase(experimentedElements.begin() + GetIndexInExperimentedElements(m_selectedElement.first));
 		m_moving = false;
+	}
+	else if (secondElementId != -1) {
+		std::cout << secondElementId;
+		std::vector<int> newElements = gameBrain.GetNewElement(m_selectedElement.first, secondElementId);
+		if (newElements.size() > 0) {
+			experimentedElements.erase(experimentedElements.begin() + GetIndexInExperimentedElements(m_selectedElement.first));
+			experimentedElements.erase(experimentedElements.begin() + GetIndexInExperimentedElements(secondElementId));
+			gameBrain.AddNewOpenElement(newElements);
+			if (newElements.size() > 1) {
+				Rect positionNewElement1 = Rect(lastPoint.X, lastPoint.Y, CARD_WIDTH, CARD_HEIGTH);
+				Rect positionNewElement2 = Rect(lastPoint.X + 40, lastPoint.Y, CARD_WIDTH, CARD_HEIGTH);
+				experimentedElements.push_back(make_pair(newElements[0], positionNewElement1));
+				experimentedElements.push_back(make_pair(newElements[1], positionNewElement2));
+			}
+			else {
+				Rect positionNewElement = Rect(lastPoint.X, lastPoint.Y, CARD_WIDTH, CARD_HEIGTH);
+				experimentedElements.push_back(make_pair(newElements[0], positionNewElement));
+			}
+			m_moving = false;
+		}
 	}
 	else {
 		experimentedElements.erase(experimentedElements.begin() + GetIndexInExperimentedElements(m_selectedElement.first));
