@@ -106,9 +106,43 @@ std::auto_ptr<Gdiplus::Bitmap> CMatrixFilter::ApplyFilter(
 		new Bitmap(w, h, ChoosePreferableOutputPixelFormat(srcBitmap)));
 	// Ссылка на результирующее изображение
 	Bitmap& dstBitmap = *pResult;
+
+
+	// Размеры и положение прямоугольной области для осуществления
+	// прямого доступа
+	Rect lockRect(0, 0, srcBitmap.GetWidth(), srcBitmap.GetHeight());
+
+
+	// Получаем прямой доступ ко всем пикселям исходного
+	// изображения для чтения
+	BitmapData srcData;
+	srcBitmap.LockBits(
+		&lockRect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &srcData);
+	BYTE const* pSrcData = reinterpret_cast<BYTE const*>(srcData.Scan0);
+
+
+	// Получаем прямой доступ ко всем пикселям результирующего
+	// изображения для записи
+	BitmapData dstData;
+	dstBitmap.LockBits(
+		&lockRect, Gdiplus::ImageLockModeWrite, PixelFormat32bppARGB, &dstData);
+	BYTE* pDstData = reinterpret_cast<BYTE*>(dstData.Scan0);
+
+
 	// цикл по строкам изображения
 	for (int y0 = 0; y0 < h; ++y0)
 	{
+		// Вычисляем адрес начала строки с индексом y0 в исходном изображении
+		const DWORD* pSrcLine =
+			reinterpret_cast<const DWORD*>(pSrcData + (srcData.Stride * y0));
+
+
+		// Вычисляем адрес начала строки с индексом y0 в
+		// результирующем изображении
+		DWORD* pDstLine =
+			reinterpret_cast<DWORD*>(pDstData + (dstData.Stride * y0));
+
+
 		// цикл по столбцам изображения
 		for (int x0 = 0; x0 < w; ++x0)
 		{
@@ -117,6 +151,8 @@ std::auto_ptr<Gdiplus::Bitmap> CMatrixFilter::ApplyFilter(
 
 			// задаем начальное значение цвета пикселя
 			float r = 0, g = 0, b = 0, a = 0;
+
+
 			// цикл по строкам матрицы
 			for (size_t row = 0; row < m_matrixHeight; ++row, ++y)
 			{
@@ -127,6 +163,13 @@ std::auto_ptr<Gdiplus::Bitmap> CMatrixFilter::ApplyFilter(
 				int srcY = min(h - 1, max(y, 0));
 
 
+				// Вычисляем адрес начала строки исходного изображения,
+				// участвующей в свертке
+				const DWORD* pSrcFilterLine =
+					reinterpret_cast<const DWORD*>(pSrcData +
+						(srcData.Stride * srcY));
+
+
 				// цикл по столбцам матрицы
 				for (size_t column = 0; column < m_matrixWidth; ++column, ++x)
 				{
@@ -134,40 +177,55 @@ std::auto_ptr<Gdiplus::Bitmap> CMatrixFilter::ApplyFilter(
 					int srcX = min(w - 1, max(x, 0));
 
 
-					// получаем текущий коэффициент матрицы
-					float coeff = GetMatrixValue(row, column);
+					// Получаем цвет пикселя, участвующего в фильтре свертки
+					// в виде 32-битного целого числа в формате 0xAARRGGBB
+					DWORD c = pSrcFilterLine[srcX];
 
 
+					// получаем текущий коэффициент из матрицы и 
 					// используем его для обновления взвешенной суммы
 					// цвета пикселя
-					Color c;
-					srcBitmap.GetPixel(srcX, srcY, &c);
-					r += c.GetRed() * coeff;
-					g += c.GetGreen() * coeff;
-					b += c.GetBlue() * coeff;
-					a += c.GetAlpha() * coeff;
+					float coeff = GetMatrixValue(row, column);
+					a += ((c >> 24) & 0xff) * coeff;
+					r += ((c >> 16) & 0xff) * coeff;
+					g += ((c >> 8) & 0xff) * coeff;
+					b += (c & 0xff) * coeff;
 				}
 			}
+
+
+			// Получаем цвет исходного пикселя в виде 32-битного
+			// целого числа в формате 0xAARRGGBB
+			DWORD srcColor = pSrcLine[x0];
+
+
 			// корректируем цвет пикселя (данная операция реализуется 
 			// в зависимости от типа фильтра)
-			Color srcColor;
-			srcBitmap.GetPixel(x0, y0, &srcColor);
 			AdjustColor(r, g, b, a, srcColor);
 
 
 			// Формируем цвет выходного пикселя и записываем его
 			// в выходное растровое изображение
-			Color dstColor(Clamp(a), Clamp(r), Clamp(g), Clamp(b));
-			dstBitmap.SetPixel(x0, y0, dstColor);
+			pDstLine[x0] = Color::MakeARGB(Clamp(a), Clamp(r), Clamp(g), Clamp(b));
 		}
 	}
+
+
+	// Вызываем UnlockBits для того, чтобы просигнализировать о завершении
+	// операций прямого доступа к исходному и результирующему изображениям.
+	srcBitmap.UnlockBits(&srcData);
+	// Поскольку к результирующему изображению был получен доступ для записи
+	// то по при вызове UnlockBits данные из массива результирующих пикселей
+	// будут записаны в результирующее растровое изображение
+	dstBitmap.UnlockBits(&dstData);
+
 
 	return pResult;
 }
 
 void CMatrixFilter::AdjustColor(
-	float& /*r*/, float& /*g*/, float& /*b*/, float& /*a*/,
-	Gdiplus::Color const& /*srcColor*/) const
+	float& /*r*/, float& /*g*/,
+	float& /*b*/, float& /*a*/, DWORD /*srcColor*/) const
 {
 	// оставляем без изменения r, g, b и a составляющие цвета
 	// этот метод может быть перегружен в производном классе

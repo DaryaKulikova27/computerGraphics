@@ -56,8 +56,7 @@ protected:
 	// ƒаем возможность классам-наследникам осуществить
 	// обработку цвета пиксел€ после применени€ к нему матричного фильтра
 	virtual void AdjustColor(
-		float& r, float& g, float& b, float& a,
-		Gdiplus::Color const& srcColor) const;
+		float& r, float& g, float& b, float& a, DWORD srcColor) const;
 
 
 private:
