@@ -24,6 +24,7 @@ public:
 	void Run()
 	{
 		glfwMakeContextCurrent(m_window);
+		OnRunStart();
 		while (!glfwWindowShouldClose(m_window))
 		{
 			int w, h;
@@ -32,10 +33,14 @@ public:
 			glfwSwapBuffers(m_window);
 			glfwPollEvents();
 		}
+		OnRunEnd();
 	}
 
 private:
 	virtual void Draw(int width, int height) = 0;
+
+	virtual void OnRunStart() {}
+	virtual void OnRunEnd() {}
 
 	static GLFWwindow* CreateWindow(int w, int h, const char* title)
 	{
