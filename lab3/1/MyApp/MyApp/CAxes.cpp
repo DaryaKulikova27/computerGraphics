@@ -12,16 +12,6 @@ void CAxes::Draw() const
 	DrawOs(90);
 }
 
-void CAxes::InitDivisions(float start, float finish, int count)
-{
-	m_cnt = count;
-	float dx = (finish - start) / (m_cnt - 1);
-	for (int i = 0; i < m_cnt; i++) {
-		divisions.push_back({ start, float(sin(start)) });
-		start += dx;
-	}
-}
-
 void CAxes::DrawOs(float alfa) 
 {
 	static float d = 0.05;

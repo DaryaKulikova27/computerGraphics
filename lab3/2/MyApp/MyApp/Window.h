@@ -2,8 +2,7 @@
 #define _USE_MATH_DEFINES
 #include<cmath>
 #include "BaseWindow.h"
-#include "CAxes.h"
-#include "Parabola.h"
+#include "CKopatych.h"
 
 
 const float DEG2RAD = 3.14159 / 180.0;
@@ -16,37 +15,26 @@ public:
 private:
 	void Draw(int width, int height) override
 	{		
+		Init2DScreen(width, height);
+		glPushMatrix();
+		CKopatych kopatych{ {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f} };
+		kopatych.DrawKopatych();
+		glPopMatrix();
+	}
+
+	void Init2DScreen(int width, int height)
+	{
 		glClearColor(1.0, 1.0, 1.0, 0.0);
 		glClear(GL_COLOR_BUFFER_BIT);
-
 		glViewport(0, 0, width, height);
-
-		//glLoadIdentity();
-
+		glLoadIdentity();
 		SetupProjectionMatrix(width, height);
-		//glMatrixMode(GL_PROJECTION);
-		//glLoadIdentity();
-
-		// общее масштабирование по осям x, y и z
-		glScalef(0.9f, 0.9f, 0.0f);
-
-		glPushMatrix();
-		CAxes axes;
-		axes.Draw();
-		glPopMatrix();
-
-		glPushMatrix();
-		//Parabola parabola{ {0.075f, -0.9125f, 0.0f} };
-		Parabola parabola{ {0.0f, 0.0f, 0.0f} };
-		parabola.Draw();
-		glPopMatrix(); 
+		glScalef(1.0f, 1.0f, 1.0f);
 	}
 
 	static void SetupProjectionMatrix(int width, int height)
 	{
-		// glMatrixMode указывает, какая матрица является текущей матрицей.
 		glMatrixMode(GL_PROJECTION);
-		// сбрасывает матрицу обратно в состояние по умолчанию
 		glLoadIdentity();
 		const double aspectRatio = double(width) / double(height);
 		double viewWidth = 2.0;
@@ -60,6 +48,6 @@ private:
 			viewHeight = viewWidth / aspectRatio;
 		}
 		// описывает матрицу перспективы, которая создает параллельную проекцию
-		//glOrtho(-viewWidth * 0.5, viewWidth * 0.5, -viewHeight * 0.5, viewHeight * 0.5, -1.0, 1.0);
+		glOrtho(-viewWidth * 0.5, viewWidth * 0.5, -viewHeight * 0.5, viewHeight * 0.5, -1.0, 1.0);
 	}
 };
