@@ -27,13 +27,13 @@ private:
 	PointGL m_scale;
 
 	static void DrawEllipse(float xCenter, float yCenter, float rx, float ry, float countPi = 2.0f, int points = 360);
-	static void DrawCircle(float cx, float cy, float rx, float ry, int num_segments = 360, float lineWidth = 8.0);
+	static void DrawCircle(float cx, float cy, float rx, float ry, float degrees = 360, int points = 360, float lineWidth = 8.0);
 	static void DrawHand();
 	static void DrawLeg();
 	static void DrawBeak();
 	static void DrawEyes();
 	static void DrawHat();
-	static void DrawGlasses();
+	static void DrawEyebrow();
 	static void DrawNose();
 	static void DrawMouth();
 	static void DrawEllipse2(float xCenter, float yCenter, float rx, float ry, float countPi = 2.0f, int points = 360);
