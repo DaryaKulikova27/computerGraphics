@@ -60,6 +60,6 @@ private:
 			viewHeight = viewWidth / aspectRatio;
 		}
 		// описывает матрицу перспективы, которая создает параллельную проекцию
-		//glOrtho(-viewWidth * 0.5, viewWidth * 0.5, -viewHeight * 0.5, viewHeight * 0.5, -1.0, 1.0);
+		glOrtho(-viewWidth * 0.5, viewWidth * 0.5, -viewHeight * 0.5, viewHeight * 0.5, -1.0, 1.0);
 	}
 };
